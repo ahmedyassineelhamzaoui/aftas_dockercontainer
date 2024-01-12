@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:alpine
+    environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: yassine
+        POSTGRES_DB: fish_competition
+    ports:
+        - "5432:5432"
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+        PGADMIN_DEFAULT_EMAIL: yassine@gmail.com
+        PGADMIN_DEFAULT_PASSWORD: yassine
+        PGADMIN_LESTEN_PORT: 5050
+    ports:
+        - "5050:5050"
+  springboot-app:
+    build:
+      context: ./fish-competition
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fish_competition
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: yassine
+
+  angular-app:
+    build:
+      context: ./fish_competition_frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./fish_competition_frontend:/app
+    ports:
+      - "4200:80"
+    depends_on:
+      - springboot-app
